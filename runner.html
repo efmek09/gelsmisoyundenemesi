@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Runner Game</title>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #111;
+}
+
+/* PLAYER */
+#player {
+  width: 80px;
+  height: 80px;
+  background: yellow;
+  position: absolute;
+  bottom: 20px;
+  left: 200px;
+  transition: left 0.2s, bottom 0.2s;
+}
+
+/* OBSTACLE */
+.obstacle {
+  width: 80px;
+  height: 80px;
+  background: red;
+  position: absolute;
+  top: 0;
+}
+
+/* LANE POSITIONS */
+.lane1 { left: 100px; }
+.lane2 { left: 200px; }
+.lane3 { left: 300px; }
+
+</style>
+</head>
+
+<body>
+
+<div id="player"></div>
+
+<script>
+
+let player = document.getElementById("player");
+
+let lane = 2; // 1 - 2 - 3
+let jumping = false;
+let score = 0;
+
+/* PLAYER MOVE */
+function updateLane() {
+  player.style.left = (lane * 100) + "px";
+}
+
+/* KEY CONTROLS */
+document.addEventListener("keydown", (e) => {
+
+  if (e.key === "ArrowLeft" && lane > 1) {
+    lane--;
+    updateLane();
+  }
+
+  if (e.key === "ArrowRight" && lane < 3) {
+    lane++;
+    updateLane();
+  }
+
+  if (e.key === "ArrowUp") {
+    jump();
+  }
+
+});
+
+/* JUMP */
+function jump() {
+  if (jumping) return;
+  jumping = true;
+
+  let up = setInterval(() => {
+    let bottom = parseInt(getComputedStyle(player).bottom);
+    if (bottom >= 150) clearInterval(up);
+    player.style.bottom = bottom + 6 + "px";
+  }, 20);
+
+  setTimeout(() => {
+    let down = setInterval(() => {
+      let bottom = parseInt(getComputedStyle(player).bottom);
+      if (bottom <= 20) {
+        clearInterval(down);
+        jumping = false;
+      }
+      player.style.bottom = bottom - 6 + "px";
+    }, 20);
+  }, 300);
+}
+
+/* OBSTACLE */
+function createObstacle() {
+
+  let obstacle = document.createElement("div");
+  obstacle.classList.add("obstacle");
+
+  let randomLane = Math.floor(Math.random() * 3) + 1;
+  obstacle.classList.add("lane" + randomLane);
+
+  let top = 0;
+  document.body.appendChild(obstacle);
+
+  let move = setInterval(() => {
+
+    top += 6;
+    obstacle.style.top = top + "px";
+
+    let playerBottom = parseInt(getComputedStyle(player).bottom);
+
+    /* COLLISION FIX */
+    if (
+      lane === randomLane &&
+      top > window.innerHeight - 120 &&
+      playerBottom < 80 &&
+      !jumping
+    ) {
+      alert("Game Over! Skor: " + score);
+      location.reload();
+    }
+
+    /* REMOVE OBSTACLE */
+    if (top > window.innerHeight) {
+      obstacle.remove();
+      clearInterval(move);
+      score++;
+      console.log("Skor:", score);
+    }
+
+  }, 20);
+}
+
+setInterval(createObstacle, 1500);
+
+</script>
+
+</body>
+</html>
