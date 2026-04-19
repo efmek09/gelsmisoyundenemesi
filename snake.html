@@ -19,10 +19,32 @@ h1 {
     margin-top: 20px;
 }
 
+#score {
+    font-size: 20px;
+    margin-top: 10px;
+    color: #00ff88;
+}
+
 canvas {
     background: #222;
     margin-top: 20px;
     border: 2px solid #00ff88;
+}
+
+/* Buton */
+button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: red;
+    color: white;
+    border: none;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: darkred;
 }
 </style>
 </head>
@@ -30,16 +52,20 @@ canvas {
 <body>
 
 <h1>🐍 Snake Oyunu</h1>
+<div id="score">Skor: 0</div>
+
 <canvas id="game" width="400" height="400"></canvas>
+
+<button onclick="goMenu()">🏠 Ana Menüye Dön</button>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 let box = 20;
+let score = 0;
 
 let snake = [{ x: 200, y: 200 }];
-
 let direction = "RIGHT";
 
 let food = spawnFood();
@@ -51,19 +77,14 @@ function spawnFood() {
     };
 }
 
-// 🔥 TUŞ SİSTEMİ (çalışan versiyon)
+// TUŞLAR
 window.addEventListener("keydown", function(e) {
     let key = e.key;
 
-    if (key === "ArrowUp" && direction !== "DOWN") {
-        direction = "UP";
-    } else if (key === "ArrowDown" && direction !== "UP") {
-        direction = "DOWN";
-    } else if (key === "ArrowLeft" && direction !== "RIGHT") {
-        direction = "LEFT";
-    } else if (key === "ArrowRight" && direction !== "LEFT") {
-        direction = "RIGHT";
-    }
+    if (key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    else if (key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    else if (key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    else if (key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
 });
 
 function draw() {
@@ -90,6 +111,8 @@ function draw() {
     // Yem yeme
     if (headX === food.x && headY === food.y) {
         food = spawnFood();
+        score++;
+        document.getElementById("score").innerText = "Skor: " + score;
     } else {
         snake.pop();
     }
@@ -104,9 +127,11 @@ function draw() {
         headY >= 400 ||
         collision(newHead, snake)
     ) {
-        alert("Oyun Bitti!");
+        alert("Oyun Bitti! Skor: " + score);
         snake = [{ x: 200, y: 200 }];
         direction = "RIGHT";
+        score = 0;
+        document.getElementById("score").innerText = "Skor: 0";
         return;
     }
 
@@ -120,6 +145,11 @@ function collision(head, array) {
         }
     }
     return false;
+}
+
+// 🏠 ANA MENÜ BUTONU
+function goMenu() {
+    window.location.href = "index.html";
 }
 
 setInterval(draw, 120);
